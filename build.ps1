@@ -1,0 +1,1 @@
+pyinstaller --noconfirm --onefile --console --name "Auto-dir"  "./src/main.py"
