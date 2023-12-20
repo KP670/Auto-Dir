@@ -11,7 +11,7 @@ def use_directory():
         return use_directory()    
 
     except KeyboardInterrupt:
-        input("You have cancelled this operation")
+        input("\nYou have cancelled this operation")
         raise SystemExit
     except:
         print("Invalid directory")
@@ -42,36 +42,31 @@ def num_folders_to_create():
     
         return num_folders_to_create()
     except KeyboardInterrupt:
-        input("You have cancelled this operation")
+        input("\nYou have cancelled this operation")
         raise SystemExit    
 
 def create_folders(folder_name, num_folders):
+    global num
     i = 1    
-    
     # Create folders until num_folders is reached
     while i <= num_folders:
-        print("Creating folder {} of {}".format(i, num_folders))
-        
-        try: os.mkdir("./"+ folder_name + "" + str(i))
-        
-        except KeyboardInterrupt:
-            input("You have cancelled this operation")
-            choice = user_choice()
-            if (choice == "N"):
-                input("You have kept the created folders")
-                raise SystemExit
-            
-            elif (choice == "Y"):
-                cleanup(folder_name, i)
+        try:
+            print("Creating folder {} of {}".format(i, num_folders))
+            if(i < 10):
+                os.mkdir("./"+ folder_name + "0" + str(i))
+                num = i
+            else:
+                os.mkdir("./"+ folder_name + "" + str(i))
+                num = i
 
-                
         #Skip current folder creation upon error
         except FileExistsError: 
             i=i+1
+            continue
         i=i+1
+        sleep(0.5)
 
 def user_choice():
-
     try:
         user_input = input("Do you want to discard all changes?\n[Y/ yes/ 1] [N/ no/ 0]:").upper()
 
@@ -101,16 +96,24 @@ def user_choice():
             return user_choice()
 
 def cleanup(folder_name, num_folders):
-        i = 0
+        i = 1
         
         while i <= num_folders:
             print("Deleting folder {} of {}".format(i, num_folders))
-            try: 
-                os.rmdir("./"+ folder_name + "" + str(i))
-
+            try:
+                if(i < 10):
+                    os.rmdir("./"+ folder_name + "0" + str(i))
+                else:
+                    os.rmdir("./"+ folder_name + "" + str(i))
             except FileExistsError: 
                 i=i+1
+                pass
+            except FileNotFoundError: 
+                i=i+1
+                sleep(0.5)
+                pass
             i=i+1
+            sleep(0.5)
         print("Clean up completed")
         raise SystemExit
             
@@ -118,5 +121,16 @@ if __name__ == "__main__":
         use_directory()
         folder_name = set_folder_name()
         no_folders = num_folders_to_create()
-        create_folders(folder_name, no_folders)
+        try:
+            create_folders(folder_name, no_folders)
+        except KeyboardInterrupt:
+            input("You have cancelled this operation")
+            choice = user_choice()
+            if (choice == "N"):
+                input("You have kept the created folders")
+                raise SystemExit
+            
+            elif (choice == "Y"):
+                cleanup(folder_name, num)
+            
         input("Press enter to exit")
